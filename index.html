@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' data: blob:"
+    />
+    <title>顔アプリ</title>
+    <style>
+      body {
+        background: #0f172a;
+        color: #e2e8f0;
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+        margin: 0;
+        padding: 32px;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 28px;
+      }
+      .sub {
+        color: #94a3b8;
+        margin: 0 0 24px;
+      }
+      #layout {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 32px;
+        align-items: start;
+      }
+      #video {
+        transform: scaleX(-1);
+        /*width: 100%;*/
+        /*display: block;*/
+      }
+      #frame {
+        position: relative;
+        /*width: 200px;*/
+      }
+      #overlay {
+        position:	absolute;
+        top: 0px;
+        left: 0px;
+        transform: scaleX(-1);
+      }
+      #instruction {
+        font-size: 32px;
+        line-height: 1.3;
+        min-height: 2.6em;
+      }
+      #shot-image {
+        max-width: 120px;  
+      }
+    </style>
+  </head>
+  <body>
+    <h1>顔アプリ</h1>
+    <p class="sub">口を開けて、歯を撮る。</p>
+    <div id="layout">
+      <div id="left">
+        <div id="frame">
+          <video id="video" autoplay muted playsinline></video>
+          <canvas id="overlay"></canvas>
+        </div>
+        <label><input type="checkbox" id="auto-save"> 撮れたら自動で保存する</label><br>
+        <label><input type="checkbox" id="show-teeth"> 歯の判定を色で見る</label><br><br>
+        <button id="open-folder">保存フォルダを開く</button>
+      </div>
+      <div id="right">
+        <p id="instruction">準備しています...</p>
+        <ul id="checks"></ul>
+        <p id="status">カメラを準備しています...</p>
+        <progress id="hold-progress" max="1" value="0"></progress>
+        <img id="shot-image" alt="撮れた写真" hidden>
+        <p id="shot-saved"></p>
+        <button id="again" hidden>もう一度撮る</button>
+        <details>
+          <summary>確認用の数字</summary>
+          <p id="teeth-shot">ベストショットの取得...</p>
+          <p id="teeth-info">歯の割合: 確認中...</p>
+          <p id="teeth-info-2">歯の詳細情報: 確認中...</p>    
+          <p id="face-info">顔: 確認中...</p>
+        </details>
+      </div>
+    </div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
