@@ -269,3 +269,7 @@ async function startFaceFinder() {
 }
 
 startFaceFinder();
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
