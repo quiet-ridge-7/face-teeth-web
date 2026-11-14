@@ -26,7 +26,6 @@ const teethShot = getElement("teeth-shot");
 const shotImage = getElement("shot-image");
 const shotSaved = getElement("shot-saved");
 const againButton = getElement("again");
-const openFolderButton = getElement("open-folder");
 const holdProgress = getElement("hold-progress");
 const autoSave = getElement("auto-save");
 const showTeeth = getElement("show-teeth");
@@ -163,17 +162,26 @@ function showGuide(message, items){
   instruction.textContent = message;
 }
 
+// 画像を、ダウンロードさせる(ブラウザの「保存」の動き)
+function downloadBlob(blob, fileName) {
+  const link = document.createElement("a");     // 見えないリンクを作る
+  link.href = URL.createObjectURL(blob);        // 行き先: 画像のデータ(blob)の、一時的なURL
+  link.download = fileName;                     // 保存する時の、ファイルの名前
+  link.click();                                 // リンクを、押したことにする
+}
+
 function showShot(bestFrame){
   bestFrame.toBlob(async (blob) => {                   // canvas を PNG のデータにする(終わったら、この関数が呼ばれる)
     const buffer = await blob.arrayBuffer();           // データを、送れる形にする
     shotImage.src = URL.createObjectURL(blob);
     shotImage.hidden = false;
     againButton.hidden = false;
+    const fileName = "teeth_" + Date.now() + ".png";   // 保存する名前(時刻の数字が入る)
     if (autoSave.checked){
-      const saved = await window.api.savePhoto(buffer);  // 保存を頼む(終わるまで待つ)
-      shotSaved.textContent = "保存しました: " + saved.path;
+      downloadBlob(blob,fileName);                     // downloadBlob で、ダウンロードさせる(blob と fileName を渡す)
+      shotSaved.textContent = "ダウンロードしました: " + fileName; // 画面に出す文に、ファイルの名前を入れる
     } else {
-      shotSaved.textContent = "保存していません(チェックを入れると、次から保存します";
+      shotSaved.textContent = "保存していません(チェックを入れると、次から保存します)";
     }
   }, "image/png");
 }
@@ -220,9 +228,6 @@ async function startFaceFinder() {
     shotImage.hidden = true;
     shotSaved.textContent = "";
     againButton.hidden = true;
-  });
-  openFolderButton.addEventListener("click", () => {
-    window.api.openCaptures();
   });
   function loop() {
     if (video.readyState >= 2) {

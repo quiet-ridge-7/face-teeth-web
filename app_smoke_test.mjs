@@ -79,13 +79,13 @@ function makeResult({ found, jawOpen = 0.7 }) {
 // ---- app.js を、作り物の中で起動する。step(n, 間隔ms) で、n コマ進める
 async function startApp(resultOf) {
   const elements = {};
-  const saved = [];
+  const downloads = [];                                          // ダウンロードの依頼(見えないリンクの click)を、記録する
   const rafQueue = [];
   const document = {
     getElementById: (id) => (htmlIds.has(id) ? (elements[id] ??= new El(id)) : null),
-    createElement: () => new El(""),
+    createElement: (tag) => { const el = new El(""); if (tag === "a") el.click = () => downloads.push({ href: el.href, download: el.download }); return el; },
   };
-  const window = { api: { savePhoto: async (buf) => { saved.push(buf.byteLength); return { path: "(偽の保存先)" }; }, openCaptures: async () => ({ ok: true }) } };
+  const window = {};                                             // Web 版: window.api は、無い(使うと、エラーで止まる)
   const navigator = { mediaDevices: { getUserMedia: async () => ({ fake: "stream" }) } };
   const createFaceLandmarker = async () => ({ detectForVideo: () => resultOf() });
 
@@ -109,7 +109,7 @@ async function startApp(resultOf) {
     }
     await new Promise((r) => setTimeout(r, 30));                    // toBlob の中(あとで動く所)の、終わりを待つ
   };
-  return { elements, saved, step };
+  return { elements, downloads, step };
 }
 
 const listText = (elements) => elements.checks.children.map((li) => li.textContent);
@@ -153,7 +153,7 @@ const listText = (elements) => elements.checks.children.map((li) => li.textConte
   assert.equal(e["shot-image"].hidden, false, "静止画が出る");
   assert.equal(e.again.hidden, false, "「もう一度撮る」が出る");
   assert.match(e["shot-saved"].textContent, /保存していません/);
-  assert.equal(app.saved.length, 0, "標準では、保存を頼まない");
+  assert.equal(app.downloads.length, 0, "標準では、ダウンロードさせない");
   // 「もう一度撮る」を押す
   e.again.listeners.click();
   assert.equal(e["shot-image"].hidden, true);
@@ -167,11 +167,12 @@ const listText = (elements) => elements.checks.children.map((li) => li.textConte
   app.elements["auto-save"].checked = true;
   await app.step(14, 100);
   const e = app.elements;
-  assert.equal(app.saved.length, 1, "保存を、1回頼む");
-  assert.match(e["shot-saved"].textContent, /^保存しました: /);
+  assert.equal(app.downloads.length, 1, "ダウンロードを、1回させる");
+  assert.match(app.downloads[0].download, /^teeth_[0-9]+[.]png$/, "保存する名前");
+  assert.match(e["shot-saved"].textContent, /^ダウンロードしました: teeth_[0-9]+[.]png$/);
   e.again.listeners.click();
   await app.step(14, 100);
-  assert.equal(app.saved.length, 2, "もう一度撮ると、2枚目の保存を頼む");
+  assert.equal(app.downloads.length, 2, "もう一度撮ると、2枚目をダウンロードさせる");
 }
 
 // 4b. 「歯の判定を色で見る」: チェックなしは、水色を塗らない。チェックありは、塗る(口の内側に、歯っぽい画素がある時)
@@ -203,6 +204,12 @@ const listText = (elements) => elements.checks.children.map((li) => li.textConte
   await app.step(2, 100);
   assert.ok(e["hold-progress"].value < 0.3, `戻ったあとは、最初から: ${e["hold-progress"].value}`);
   assert.equal(e["shot-image"].hidden, true, "1秒に届いていないので、まだ、撮れていない");
+}
+
+// 6. Web 版: Electron 専用の名前(window.api など)が、app.js と index.html に、残っていない
+{
+  assert.ok(!/window[.]api|openCaptures|savePhoto/.test(appSource), "app.js に、Electron 専用の呼び出しが、残っている");
+  assert.ok(!html.includes("open-folder"), "index.html に、保存フォルダを開くボタンが、残っている");
 }
 
 console.log("app_smoke_test: すべて通りました");
