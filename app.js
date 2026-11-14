@@ -34,7 +34,7 @@ const INNER_LIP = [78, 95, 88, 178, 87, 14, 317, 402, 318, 324, 308, 415, 310, 3
 
 async function startCamera() {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
     console.log("カメラを取れました:", stream);
     video.addEventListener("loadedmetadata", () => {
       overlay.width = video.videoWidth; 
