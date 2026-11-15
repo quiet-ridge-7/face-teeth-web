@@ -1,4 +1,4 @@
-const CACHE_NAME = "face-teeth-web-v2";
+const CACHE_NAME = "face-teeth-web-v3";
 const HEAVY_CACHE = "face-teeth-web-heavy-v1";   // 大きな物を入れる、別の箱
 
 const FILES = ["./", "index.html", "app.js", "manifest.webmanifest", "icon-192.png", "icon-512.png","guide.mjs","mediapipe_setup.mjs","licenses.txt"];
