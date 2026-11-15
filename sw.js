@@ -1,7 +1,7 @@
-const CACHE_NAME = "face-teeth-web-v1";
+const CACHE_NAME = "face-teeth-web-v2";
 const HEAVY_CACHE = "face-teeth-web-heavy-v1";   // 大きな物を入れる、別の箱
 
-const FILES = ["./", "index.html", "app.js", "manifest.webmanifest", "icon-192.png", "icon-512.png","guide.mjs","mediapipe_setup.mjs"];
+const FILES = ["./", "index.html", "app.js", "manifest.webmanifest", "icon-192.png", "icon-512.png","guide.mjs","mediapipe_setup.mjs","licenses.txt"];
 
 async function cacheFirst(request) {
   const cached = await caches.match(request);
@@ -28,12 +28,6 @@ self.addEventListener("activate", (event) => {
   )
   );
 });
-
-/*self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))   // ネットが失敗したら、箱を見る
-  );
-});*/
 
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
