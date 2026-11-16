@@ -1,0 +1,12 @@
+# 写真を、うっかり、コミットしないための、安全装置
+captures/
+teeth_*.png
+*.jpg
+*.jpeg
+
+# 部品の置き場(必要になった時のために)
+node_modules/
+
+# OS が作る、不要なファイル
+Thumbs.db
+.DS_Store
